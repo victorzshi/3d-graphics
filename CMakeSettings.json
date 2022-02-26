@@ -1,0 +1,24 @@
+﻿{
+  "configurations": [
+    {
+      "name": "x64-Clang-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "buildRoot": "${projectDir}\\build\\${name}",
+      "installRoot": "${projectDir}\\install\\${name}",
+      "inheritEnvironments": [ "clang_cl_x64_x64" ],
+      "intelliSenseMode": "windows-clang-x64",
+      "enableClangTidyCodeAnalysis": true
+    },
+    {
+      "name": "x64-Clang-Release",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "buildRoot": "${projectDir}\\build\\${name}",
+      "installRoot": "${projectDir}\\install\\${name}",
+      "inheritEnvironments": [ "clang_cl_x64_x64" ],
+      "intelliSenseMode": "windows-clang-x64",
+      "enableClangTidyCodeAnalysis": true
+    }
+  ]
+}
