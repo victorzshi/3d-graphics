@@ -13,6 +13,7 @@ target_include_directories(main PRIVATE
 )
 target_sources(main PRIVATE 
   "src/graphics/graphics.cc"
+  "src/math/matrix44/matrix44.cc"
   "src/math/vector3/vector3.cc"
   "src/main.cc"
 )
