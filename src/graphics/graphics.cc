@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+#include "math/vector3/vector3.h"
+
 Graphics::Graphics() : isRunning_(true) {
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
     std::cerr << "SDL could not initialize! SDL error: " << SDL_GetError()
@@ -32,6 +34,10 @@ Graphics::~Graphics() {
 }
 
 void Graphics::run() {
+  Vector3 u = Vector3(1.0f, 2.0f, 3.0f);
+
+  std::cout << u.str();
+
   while (isRunning_) {
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(renderer_);

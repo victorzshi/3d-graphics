@@ -91,12 +91,9 @@ TEST_CASE("Vector3 normalize") {
   REQUIRE(u != Vector3(v.x / length, v.y / length, v.z));
 }
 
-TEST_CASE("Vector3 limit") {
-  float length = v.length();
-  float n = 0.5f;
-  Vector3 u = v.limit(n);
-  REQUIRE(u == Vector3(v.x / length * n, v.y / length * n, v.z / length * n));
-  REQUIRE(u != Vector3(v.x, v.y / length * n, v.z / length * n));
-  REQUIRE(u != Vector3(v.x / length * n, v.y, v.z / length * n));
-  REQUIRE(u != Vector3(v.x / length * n, v.y / length * n, v.z));
+TEST_CASE("Vector3 dot") {
+  float dot = v.dot(w);
+  REQUIRE(dot == 32.0f);
+  REQUIRE(dot != 31.0f);
+  REQUIRE(dot != 33.0f);
 }

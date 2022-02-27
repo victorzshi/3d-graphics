@@ -2,14 +2,12 @@
 
 #include <assert.h>
 
-#include <iostream>
-
 Vector3::Vector3() : x(0.0f), y(0.0f), z(0.0f) {}
 
 Vector3::Vector3(float newX, float newY, float newZ)
     : x(newX), y(newY), z(newZ) {}
 
-float Vector3::length() const { return sqrt(x * x + y * y + z * z); }
+float Vector3::length() const { return sqrtf(x * x + y * y + z * z); }
 
 float Vector3::lengthSquared() const { return x * x + y * y + z * z; }
 
@@ -18,69 +16,74 @@ Vector3 Vector3::normalize() const {
   return *this / this->length();
 }
 
-Vector3 Vector3::limit(float n) const {
-  if (this->lengthSquared() > n * n) {
-    return this->normalize() * n;
-  }
+float Vector3::dot(const Vector3& other) const {
+  return x * other.x + y * other.y + z * other.z;
+}
+
+Vector3 Vector3::operator+(const Vector3& other) const {
+  return Vector3(this->x + other.x, this->y + other.y, this->z + other.z);
+}
+
+Vector3& Vector3::operator+=(const Vector3& other) {
+  x += other.x;
+  y += other.y;
+  z += other.z;
   return *this;
 }
 
-Vector3 Vector3::operator+(const Vector3& v) const {
-  return Vector3(this->x + v.x, this->y + v.y, this->z + v.z);
+Vector3 Vector3::operator-(const Vector3& other) const {
+  return Vector3(this->x - other.x, this->y - other.y, this->z - other.z);
 }
 
-Vector3& Vector3::operator+=(const Vector3& v) {
-  x += v.x;
-  y += v.y;
-  z += v.z;
+Vector3& Vector3::operator-=(const Vector3& other) {
+  x -= other.x;
+  y -= other.y;
+  z -= other.z;
   return *this;
 }
 
-Vector3 Vector3::operator-(const Vector3& v) const {
-  return Vector3(this->x - v.x, this->y - v.y, this->z - v.z);
+Vector3 Vector3::operator*(float scalar) const {
+  return Vector3(this->x * scalar, this->y * scalar, this->z * scalar);
 }
 
-Vector3& Vector3::operator-=(const Vector3& v) {
-  x -= v.x;
-  y -= v.y;
-  z -= v.z;
+Vector3 Vector3::operator*=(float scalar) {
+  x *= scalar;
+  y *= scalar;
+  z *= scalar;
   return *this;
 }
 
-Vector3 Vector3::operator*(float n) const {
-  return Vector3(this->x * n, this->y * n, this->z * n);
+Vector3 Vector3::operator/(float scalar) const {
+  return Vector3(this->x / scalar, this->y / scalar, this->z / scalar);
 }
 
-Vector3 Vector3::operator*=(float n) {
-  x *= n;
-  y *= n;
-  z *= n;
+Vector3 Vector3::operator/=(float scalar) {
+  x /= scalar;
+  y /= scalar;
+  z /= scalar;
   return *this;
 }
 
-Vector3 Vector3::operator/(float n) const {
-  return Vector3(this->x / n, this->y / n, this->z / n);
+bool Vector3::operator==(const Vector3& other) const {
+  return equals(x, other.x) && equals(y, other.y) && equals(z, other.z);
 }
 
-Vector3 Vector3::operator/=(float n) {
-  x /= n;
-  y /= n;
-  z /= n;
-  return *this;
-}
-
-bool Vector3::operator==(const Vector3& v) const {
-  return equals(x, v.x) && equals(y, v.y) && equals(z, v.z);
-}
-
-bool Vector3::operator!=(const Vector3& v) const {
-  return !equals(x, v.x) || !equals(y, v.y) || !equals(z, v.z);
+bool Vector3::operator!=(const Vector3& other) const {
+  return !equals(x, other.x) || !equals(y, other.y) || !equals(z, other.z);
 }
 
 bool Vector3::equals(float a, float b, float epsilon) {
   return abs(a - b) <= epsilon * (abs(a) + abs(b) + 1.0f);
 }
 
-void Vector3::print() {
-  std::cout << "(" << x << ", " << y << ", " << z << ")" << std::endl;
+std::string Vector3::str() const {
+  std::string text;
+  text += "(";
+  text += std::to_string(x);
+  text += ", ";
+  text += std::to_string(y);
+  text += ", ";
+  text += std::to_string(z);
+  text += ")";
+  return text;
 }
