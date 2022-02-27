@@ -2,8 +2,9 @@
 
 #include "vector3/vector3.h"
 
-struct Matrix44 {
-  float data[16] = {0.0f};
+// 4x4 matrix.
+struct Matrix {
+  float m[16] = {0.0f};
 
   float& operator()(int row, int col);
 };

@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 
-#include "matrix44/matrix44.h"
+#include "matrix/matrix.h"
 #include "mesh/mesh.h"
 #include "triangle/triangle.h"
 #include "vector3/vector3.h"
@@ -48,7 +48,7 @@ void Graphics::run() {
   float fieldOfViewRadians =
       1.0f / tanf(fieldOfView * 0.5f / 180.0f * 3.14159f);
 
-  Matrix44 projection;
+  Matrix projection;
   projection(0, 0) = aspectRatio * fieldOfViewRadians;
   projection(1, 1) = fieldOfViewRadians;
   projection(2, 2) = farPlane / (farPlane - nearPlane);
@@ -74,7 +74,7 @@ void Graphics::run() {
     // Build rotation matrix
     float theta = static_cast<float>(elapsed) / 1000.0f;
 
-    Matrix44 rotationZ;
+    Matrix rotationZ;
     rotationZ(0, 0) = cosf(theta);
     rotationZ(0, 1) = sinf(theta);
     rotationZ(1, 0) = -sinf(theta);
@@ -82,7 +82,7 @@ void Graphics::run() {
     rotationZ(2, 2) = 1;
     rotationZ(3, 3) = 1;
 
-    Matrix44 rotationX;
+    Matrix rotationX;
     rotationX(0, 0) = 1;
     rotationX(1, 1) = cosf(theta * 0.5f);
     rotationX(1, 2) = sinf(theta * 0.5f);
@@ -133,7 +133,7 @@ void Graphics::run() {
   }
 }
 
-Vector3 Graphics::multiply(Vector3& v, Matrix44& m) {
+Vector3 Graphics::multiply(Vector3& v, Matrix& m) {
   Vector3 u;
   u.x = v.x * m(0, 0) + v.y * m(1, 0) + v.z * m(2, 0) + m(3, 0);
   u.y = v.x * m(0, 1) + v.y * m(1, 1) + v.z * m(2, 1) + m(3, 1);
