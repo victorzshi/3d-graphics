@@ -2,23 +2,27 @@
 
 #include <SDL.h>
 
+#include <iostream>
+
 Graphics::Graphics() : isRunning_(true) {
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-    fprintf(stderr, "SDL could not initialize! SDL error: %s\n",
-            SDL_GetError());
+    std::cerr << "SDL could not initialize! SDL error: " << SDL_GetError()
+              << std::endl;
   }
 
   window_ = SDL_CreateWindow("Graphics 3D", SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
                              SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
   if (window_ == nullptr) {
-    fprintf(stderr, "Window was not created! SDL error: %s\n", SDL_GetError());
+    std::cerr << "Window was not created! SDL error: " << SDL_GetError()
+              << std::endl;
   }
 
   renderer_ = SDL_CreateRenderer(
       window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
   if (renderer_ == nullptr) {
-    fprintf(stderr, "Renderer was not create! SDL error: %s\n", SDL_GetError());
+    std::cerr << "Renderer was not created! SDL error: " << SDL_GetError()
+              << std::endl;
   }
 }
 
