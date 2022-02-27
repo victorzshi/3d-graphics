@@ -39,7 +39,7 @@ struct Vector3 {
 
   bool operator!=(const Vector3& v) const;
 
-  static bool almostEquals(float a, float b, float epsilon = 1.0f / 1000);
+  static bool equals(float a, float b, float epsilon = 1.0f / 1000);
 
   void print();
 };

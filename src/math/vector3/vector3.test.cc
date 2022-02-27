@@ -77,15 +77,18 @@ TEST_CASE("Vector3 compound divide") {
 
 TEST_CASE("Vector3 length") {
   float length = v.length();
-  REQUIRE(Vector3::almostEquals(length, sqrt(14)));
-  REQUIRE(!Vector3::almostEquals(length, sqrt(13)));
-  REQUIRE(!Vector3::almostEquals(length, sqrt(15)));
+  REQUIRE(Vector3::equals(length, sqrt(14)));
+  REQUIRE(!Vector3::equals(length, sqrt(13)));
+  REQUIRE(!Vector3::equals(length, sqrt(15)));
 }
 
 TEST_CASE("Vector3 normalize") {
   float length = v.length();
   Vector3 u = v.normalize();
   REQUIRE(u == Vector3(v.x / length, v.y / length, v.z / length));
+  REQUIRE(u != Vector3(v.x, v.y / length, v.z / length));
+  REQUIRE(u != Vector3(v.x / length, v.y, v.z / length));
+  REQUIRE(u != Vector3(v.x / length, v.y / length, v.z));
 }
 
 TEST_CASE("Vector3 limit") {
@@ -93,4 +96,7 @@ TEST_CASE("Vector3 limit") {
   float n = 0.5f;
   Vector3 u = v.limit(n);
   REQUIRE(u == Vector3(v.x / length * n, v.y / length * n, v.z / length * n));
+  REQUIRE(u != Vector3(v.x, v.y / length * n, v.z / length * n));
+  REQUIRE(u != Vector3(v.x / length * n, v.y, v.z / length * n));
+  REQUIRE(u != Vector3(v.x / length * n, v.y / length * n, v.z));
 }

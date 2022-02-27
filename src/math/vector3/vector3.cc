@@ -15,24 +15,18 @@ float Vector3::lengthSquared() const { return x * x + y * y + z * z; }
 
 Vector3 Vector3::normalize() const {
   assert(this->lengthSquared() > 0);
-  Vector3 v = *this / this->length();
-  return v;
+  return *this / this->length();
 }
 
 Vector3 Vector3::limit(float n) const {
-  Vector3 v = *this;
   if (this->lengthSquared() > n * n) {
-    v = this->normalize() * n;
+    return this->normalize() * n;
   }
-  return v;
+  return *this;
 }
 
 Vector3 Vector3::operator+(const Vector3& v) const {
-  Vector3 u;
-  u.x = this->x + v.x;
-  u.y = this->y + v.y;
-  u.z = this->z + v.z;
-  return u;
+  return Vector3(this->x + v.x, this->y + v.y, this->z + v.z);
 }
 
 Vector3& Vector3::operator+=(const Vector3& v) {
@@ -43,11 +37,7 @@ Vector3& Vector3::operator+=(const Vector3& v) {
 }
 
 Vector3 Vector3::operator-(const Vector3& v) const {
-  Vector3 u;
-  u.x = this->x - v.x;
-  u.y = this->y - v.y;
-  u.z = this->z - v.z;
-  return u;
+  return Vector3(this->x - v.x, this->y - v.y, this->z - v.z);
 }
 
 Vector3& Vector3::operator-=(const Vector3& v) {
@@ -58,11 +48,7 @@ Vector3& Vector3::operator-=(const Vector3& v) {
 }
 
 Vector3 Vector3::operator*(float n) const {
-  Vector3 u;
-  u.x = this->x * n;
-  u.y = this->y * n;
-  u.z = this->z * n;
-  return u;
+  return Vector3(this->x * n, this->y * n, this->z * n);
 }
 
 Vector3 Vector3::operator*=(float n) {
@@ -73,11 +59,7 @@ Vector3 Vector3::operator*=(float n) {
 }
 
 Vector3 Vector3::operator/(float n) const {
-  Vector3 u;
-  u.x = this->x / n;
-  u.y = this->y / n;
-  u.z = this->z / n;
-  return u;
+  return Vector3(this->x / n, this->y / n, this->z / n);
 }
 
 Vector3 Vector3::operator/=(float n) {
@@ -88,15 +70,14 @@ Vector3 Vector3::operator/=(float n) {
 }
 
 bool Vector3::operator==(const Vector3& v) const {
-  return almostEquals(x, v.x) && almostEquals(y, v.y) && almostEquals(z, v.z);
+  return equals(x, v.x) && equals(y, v.y) && equals(z, v.z);
 }
 
 bool Vector3::operator!=(const Vector3& v) const {
-  return !almostEquals(x, v.x) || !almostEquals(y, v.y) ||
-         !almostEquals(z, v.z);
+  return !equals(x, v.x) || !equals(y, v.y) || !equals(z, v.z);
 }
 
-bool Vector3::almostEquals(float a, float b, float epsilon) {
+bool Vector3::equals(float a, float b, float epsilon) {
   return abs(a - b) <= epsilon * (abs(a) + abs(b) + 1.0f);
 }
 
