@@ -9,6 +9,7 @@ find_package(Catch2 CONFIG REQUIRED)
 # Main target
 add_executable(main)
 target_sources(main PRIVATE 
+  "src/graphics/graphics.cc"
   "src/main.cc"
 )
 target_link_libraries(main PRIVATE SDL2::SDL2 SDL2::SDL2main)
@@ -19,6 +20,7 @@ target_compile_options(main PRIVATE
   -Wextra 
   -Wpedantic 
   -Werror
+  -Wno-c++98-compat
 )
 
 # Tests target
