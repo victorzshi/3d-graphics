@@ -8,8 +8,12 @@ find_package(Catch2 CONFIG REQUIRED)
 
 # Main target
 add_executable(main)
+target_include_directories(main PRIVATE 
+  "src"
+)
 target_sources(main PRIVATE 
   "src/graphics/graphics.cc"
+  "src/math/vector3/vector3.cc"
   "src/main.cc"
 )
 target_link_libraries(main PRIVATE SDL2::SDL2 SDL2::SDL2main)
@@ -26,7 +30,8 @@ target_compile_options(main PRIVATE
 # Tests target
 add_executable(tests)
 target_sources(tests PRIVATE 
-  "src/main.test.cc"
+  "src/math/vector3/vector3.cc"
+  "src/math/vector3/vector3.test.cc"
 )
 target_link_libraries(tests PRIVATE Catch2::Catch2)
 
