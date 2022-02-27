@@ -6,90 +6,9 @@
 #include <vector>
 
 #include "matrix44/matrix44.h"
+#include "mesh/mesh.h"
+#include "triangle/triangle.h"
 #include "vector3/vector3.h"
-
-struct Triangle {
-  Vector3 point[3];
-
-  Triangle() {
-    point[0] = Vector3();
-    point[1] = Vector3();
-    point[2] = Vector3();
-  }
-
-  Triangle(Vector3 p1, Vector3 p2, Vector3 p3) {
-    point[0] = p1;
-    point[1] = p2;
-    point[2] = p3;
-  }
-};
-
-struct Mesh {
-  std::vector<Triangle> triangles;
-
-  static Mesh cube() {
-    Mesh cube;
-    Vector3 p1;
-    Vector3 p2;
-    Vector3 p3;
-    // South
-    p1 = Vector3(0.0f, 0.0f, 0.0f);
-    p2 = Vector3(0.0f, 1.0f, 0.0f);
-    p3 = Vector3(1.0f, 1.0f, 0.0f);
-    cube.triangles.push_back(Triangle(p1, p2, p3));
-    p1 = Vector3(0.0f, 0.0f, 0.0f);
-    p2 = Vector3(1.0f, 1.0f, 0.0f);
-    p3 = Vector3(1.0f, 0.0f, 0.0f);
-    cube.triangles.push_back(Triangle(p1, p2, p3));
-    // East
-    p1 = Vector3(1.0f, 0.0f, 0.0f);
-    p2 = Vector3(1.0f, 1.0f, 0.0f);
-    p3 = Vector3(1.0f, 1.0f, 1.0f);
-    cube.triangles.push_back(Triangle(p1, p2, p3));
-    p1 = Vector3(1.0f, 0.0f, 0.0f);
-    p2 = Vector3(1.0f, 1.0f, 1.0f);
-    p3 = Vector3(1.0f, 0.0f, 1.0f);
-    cube.triangles.push_back(Triangle(p1, p2, p3));
-    // North
-    p1 = Vector3(1.0f, 0.0f, 1.0f);
-    p2 = Vector3(1.0f, 1.0f, 1.0f);
-    p3 = Vector3(0.0f, 1.0f, 1.0f);
-    cube.triangles.push_back(Triangle(p1, p2, p3));
-    p1 = Vector3(1.0f, 0.0f, 1.0f);
-    p2 = Vector3(0.0f, 1.0f, 1.0f);
-    p3 = Vector3(0.0f, 0.0f, 1.0f);
-    cube.triangles.push_back(Triangle(p1, p2, p3));
-    // West
-    p1 = Vector3(0.0f, 0.0f, 1.0f);
-    p2 = Vector3(0.0f, 1.0f, 1.0f);
-    p3 = Vector3(0.0f, 1.0f, 0.0f);
-    cube.triangles.push_back(Triangle(p1, p2, p3));
-    p1 = Vector3(0.0f, 0.0f, 1.0f);
-    p2 = Vector3(0.0f, 1.0f, 0.0f);
-    p3 = Vector3(0.0f, 0.0f, 0.0f);
-    cube.triangles.push_back(Triangle(p1, p2, p3));
-    // Top
-    p1 = Vector3(0.0f, 1.0f, 0.0f);
-    p2 = Vector3(0.0f, 1.0f, 1.0f);
-    p3 = Vector3(1.0f, 1.0f, 1.0f);
-    cube.triangles.push_back(Triangle(p1, p2, p3));
-    p1 = Vector3(0.0f, 1.0f, 0.0f);
-    p2 = Vector3(1.0f, 1.0f, 1.0f);
-    p3 = Vector3(1.0f, 1.0f, 0.0f);
-    cube.triangles.push_back(Triangle(p1, p2, p3));
-    // Bottom
-    p1 = Vector3(1.0f, 0.0f, 1.0f);
-    p2 = Vector3(0.0f, 0.0f, 1.0f);
-    p3 = Vector3(0.0f, 0.0f, 0.0f);
-    cube.triangles.push_back(Triangle(p1, p2, p3));
-    p1 = Vector3(1.0f, 0.0f, 1.0f);
-    p2 = Vector3(0.0f, 0.0f, 0.0f);
-    p3 = Vector3(1.0f, 0.0f, 0.0f);
-    cube.triangles.push_back(Triangle(p1, p2, p3));
-
-    return cube;
-  }
-};
 
 Graphics::Graphics() : isRunning_(true) {
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -177,53 +96,55 @@ void Graphics::run() {
     SDL_SetRenderDrawColor(renderer_, 255, 255, 255, SDL_ALPHA_OPAQUE);
     for (auto triangle : cube.triangles) {
       Triangle rotated;
-      rotated.point[0] = rotationZ.multiply(triangle.point[0]);
-      rotated.point[1] = rotationZ.multiply(triangle.point[1]);
-      rotated.point[2] = rotationZ.multiply(triangle.point[2]);
+      rotated.v[0] = multiply(triangle.v[0], rotationZ);
+      rotated.v[1] = multiply(triangle.v[1], rotationZ);
+      rotated.v[2] = multiply(triangle.v[2], rotationZ);
 
-      rotated.point[0] = rotationX.multiply(rotated.point[0]);
-      rotated.point[1] = rotationX.multiply(rotated.point[1]);
-      rotated.point[2] = rotationX.multiply(rotated.point[2]);
+      rotated.v[0] = multiply(rotated.v[0], rotationX);
+      rotated.v[1] = multiply(rotated.v[1], rotationX);
+      rotated.v[2] = multiply(rotated.v[2], rotationX);
 
       Triangle translated = rotated;
-      translated.point[0].z += 3.0f;
-      translated.point[1].z += 3.0f;
-      translated.point[2].z += 3.0f;
+      translated.v[0].z += 3.0f;
+      translated.v[1].z += 3.0f;
+      translated.v[2].z += 3.0f;
 
       Triangle projected;
-      projected.point[0] = projection.multiply(translated.point[0]);
-      projected.point[1] = projection.multiply(translated.point[1]);
-      projected.point[2] = projection.multiply(translated.point[2]);
+      projected.v[0] = multiply(translated.v[0], projection);
+      projected.v[1] = multiply(translated.v[1], projection);
+      projected.v[2] = multiply(translated.v[2], projection);
 
       // Scale into view
-      projected.point[0] += Vector3(1.0f, 1.0f, 0.0f);
-      projected.point[1] += Vector3(1.0f, 1.0f, 0.0f);
-      projected.point[2] += Vector3(1.0f, 1.0f, 0.0f);
+      projected.v[0] += Vector3(1.0f, 1.0f, 0.0f);
+      projected.v[1] += Vector3(1.0f, 1.0f, 0.0f);
+      projected.v[2] += Vector3(1.0f, 1.0f, 0.0f);
 
-      projected.point[0].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
-      projected.point[0].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
-      projected.point[1].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
-      projected.point[1].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
-      projected.point[2].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
-      projected.point[2].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
+      projected.v[0].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
+      projected.v[0].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
+      projected.v[1].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
+      projected.v[1].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
+      projected.v[2].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
+      projected.v[2].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
 
-      int x1 = static_cast<int>(roundf(projected.point[0].x));
-      int y1 = static_cast<int>(roundf(projected.point[0].y));
-      int x2 = static_cast<int>(roundf(projected.point[1].x));
-      int y2 = static_cast<int>(roundf(projected.point[1].y));
-      SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
-      x1 = static_cast<int>(roundf(projected.point[1].x));
-      y1 = static_cast<int>(roundf(projected.point[1].y));
-      x2 = static_cast<int>(roundf(projected.point[2].x));
-      y2 = static_cast<int>(roundf(projected.point[2].y));
-      SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
-      x1 = static_cast<int>(roundf(projected.point[2].x));
-      y1 = static_cast<int>(roundf(projected.point[2].y));
-      x2 = static_cast<int>(roundf(projected.point[0].x));
-      y2 = static_cast<int>(roundf(projected.point[0].y));
-      SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
+      projected.render(renderer_);
     }
 
     SDL_RenderPresent(renderer_);
   }
+}
+
+Vector3 Graphics::multiply(Vector3& v, Matrix44& m) {
+  Vector3 u;
+  u.x = v.x * m(0, 0) + v.y * m(1, 0) + v.z * m(2, 0) + m(3, 0);
+  u.y = v.x * m(0, 1) + v.y * m(1, 1) + v.z * m(2, 1) + m(3, 1);
+  u.z = v.x * m(0, 2) + v.y * m(1, 2) + v.z * m(2, 2) + m(3, 2);
+  float w = v.x * m(0, 3) + v.y * m(1, 3) + v.z * m(2, 3) + m(3, 3);
+
+  if (w != 0.0f) {
+    u.x /= w;
+    u.y /= w;
+    u.z /= w;
+  }
+
+  return u;
 }

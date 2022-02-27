@@ -2,6 +2,8 @@
 
 struct SDL_Window;
 struct SDL_Renderer;
+struct Vector3;
+struct Matrix44;
 
 class Graphics {
  public:
@@ -19,4 +21,6 @@ class Graphics {
 
   SDL_Window* window_;
   SDL_Renderer* renderer_;
+
+  Vector3 multiply(Vector3& v, Matrix44& m);
 };

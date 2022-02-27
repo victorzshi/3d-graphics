@@ -14,6 +14,8 @@ target_include_directories(main PRIVATE
 target_sources(main PRIVATE 
   "src/graphics/graphics.cc"
   "src/matrix44/matrix44.cc"
+  "src/mesh/mesh.cc"
+  "src/triangle/triangle.cc"
   "src/vector3/vector3.cc"
   "src/main.cc"
 )
