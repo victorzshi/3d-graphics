@@ -1,6 +1,6 @@
 #pragma once
 
-#include "math/vector3/vector3.h"
+#include "vector3/vector3.h"
 
 struct Matrix44 {
   float data[16] = {0.0f};

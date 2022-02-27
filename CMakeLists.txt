@@ -13,8 +13,8 @@ target_include_directories(main PRIVATE
 )
 target_sources(main PRIVATE 
   "src/graphics/graphics.cc"
-  "src/math/matrix44/matrix44.cc"
-  "src/math/vector3/vector3.cc"
+  "src/matrix44/matrix44.cc"
+  "src/vector3/vector3.cc"
   "src/main.cc"
 )
 target_link_libraries(main PRIVATE SDL2::SDL2 SDL2::SDL2main)
@@ -31,8 +31,8 @@ target_compile_options(main PRIVATE
 # Tests target
 add_executable(tests)
 target_sources(tests PRIVATE 
-  "src/math/vector3/vector3.cc"
-  "src/math/vector3/vector3.test.cc"
+  "src/vector3/vector3.cc"
+  "src/vector3/vector3.test.cc"
 )
 target_link_libraries(tests PRIVATE Catch2::Catch2)
 

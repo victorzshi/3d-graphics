@@ -5,8 +5,8 @@
 #include <iostream>
 #include <vector>
 
-#include "math/matrix44/matrix44.h"
-#include "math/vector3/vector3.h"
+#include "matrix44/matrix44.h"
+#include "vector3/vector3.h"
 
 struct Triangle {
   Vector3 point[3];
