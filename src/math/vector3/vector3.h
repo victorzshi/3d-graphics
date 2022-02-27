@@ -17,7 +17,7 @@ struct Vector3 {
 
   float dot(const Vector3& other) const;
 
-  // TODO(Victor): Cross product.
+  Vector3 cross(const Vector3& other) const;
 
   Vector3 operator+(const Vector3& other) const;
 

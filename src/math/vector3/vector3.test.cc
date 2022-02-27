@@ -91,9 +91,17 @@ TEST_CASE("Vector3 normalize") {
   REQUIRE(u != Vector3(v.x / length, v.y / length, v.z));
 }
 
-TEST_CASE("Vector3 dot") {
+TEST_CASE("Vector3 dot product") {
   float dot = v.dot(w);
   REQUIRE(dot == 32.0f);
   REQUIRE(dot != 31.0f);
   REQUIRE(dot != 33.0f);
+}
+
+TEST_CASE("Vector3 cross product") {
+  Vector3 u = v.cross(w);
+  REQUIRE(u == Vector3(-3.0f, 6.0f, -3.0f));
+  REQUIRE(u != Vector3(-3.1f, 6.0f, -3.0f));
+  REQUIRE(u != Vector3(-3.0f, 6.1f, -3.0f));
+  REQUIRE(u != Vector3(-3.0f, 6.0f, -3.1f));
 }
