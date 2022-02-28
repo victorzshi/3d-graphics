@@ -17,43 +17,6 @@ Triangle::Triangle(Vector3 p1, Vector3 p2, Vector3 p3)
   point[2] = p3;
 }
 
-Triangle Triangle::multiply(Matrix& m) const {
-  Triangle triangle;
-
-  for (int i = 0; i < 3; i++) {
-    Vector3 u;
-
-    u.x = point[i].x * m(0, 0) + point[i].y * m(1, 0) + point[i].z * m(2, 0) +
-          m(3, 0);
-    u.y = point[i].x * m(0, 1) + point[i].y * m(1, 1) + point[i].z * m(2, 1) +
-          m(3, 1);
-    u.z = point[i].x * m(0, 2) + point[i].y * m(1, 2) + point[i].z * m(2, 2) +
-          m(3, 2);
-    float w = point[i].x * m(0, 3) + point[i].y * m(1, 3) +
-              point[i].z * m(2, 3) + m(3, 3);
-
-    if (w != 0.0f) {
-      u.x /= w;
-      u.y /= w;
-      u.z /= w;
-    }
-
-    triangle.point[i] = u;
-  }
-
-  return triangle;
-}
-
-Triangle Triangle::translate(Vector3& v) const {
-  Triangle triangle = *this;
-
-  for (int i = 0; i < 3; i++) {
-    triangle.point[i] += v;
-  }
-
-  return triangle;
-}
-
 void Triangle::render(SDL_Renderer* renderer) {
   SDL_Vertex vertex[3];
 

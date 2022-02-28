@@ -23,8 +23,6 @@ class Graphics {
   SDL_Renderer* renderer_;
 
   Matrix projectionMatrix();
-  Matrix rotationX(float theta);
-  Matrix rotationY(float theta);
-  Matrix rotationZ(float theta);
+  Vector3 reciprocalDivide(Vector3& v);
   SDL_Color getColor(Vector3& normal);
 };

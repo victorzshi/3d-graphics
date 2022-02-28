@@ -8,9 +8,7 @@ find_package(Catch2 CONFIG REQUIRED)
 
 # Main target
 add_executable(main)
-target_include_directories(main PRIVATE 
-  "src"
-)
+target_include_directories(main PRIVATE "src")
 target_sources(main PRIVATE 
   "src/graphics/graphics.cc"
   "src/matrix/matrix.cc"
@@ -35,6 +33,7 @@ target_compile_definitions(main PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")
 
 # Tests target
 add_executable(tests)
+target_include_directories(tests PRIVATE "src")
 target_sources(tests PRIVATE 
   "src/vector3/vector3.cc"
   "src/vector3/vector3.test.cc"

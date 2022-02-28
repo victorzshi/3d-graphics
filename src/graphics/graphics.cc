@@ -61,18 +61,24 @@ void Graphics::run() {
 
     float theta = static_cast<float>(elapsed) / 1000.0f;
 
-    Matrix rotation = rotationZ(theta) * rotationX(theta);
+    Matrix rotation = Matrix::rotationZ(theta) * Matrix::rotationX(theta);
 
     // Cull triangles
     std::vector<Triangle> raster;
 
     for (auto triangle : mesh.triangles) {
       // Apply rotation
-      Triangle rotated = triangle.multiply(rotation);
+      Triangle rotated;
+      for (int i = 0; i < 3; i++) {
+        rotated.point[i] = rotation * triangle.point[i];
+        rotated.point[i] = reciprocalDivide(rotated.point[i]);
+      }
 
       // Apply translation
-      Vector3 translation = Vector3(0.0f, 0.0f, 10.0f);
-      Triangle translated = rotated.translate(translation);
+      Triangle translated;
+      for (int i = 0; i < 3; i++) {
+        translated.point[i] = rotated.point[i] + Vector3(0.0f, 0.0f, 10.0f);
+      }
 
       // Calculate normal
       Vector3 a = translated.point[1] - translated.point[0];
@@ -82,11 +88,16 @@ void Graphics::run() {
 
       if (normal.dot(translated.point[0] - camera) < 0) {
         // Project from 3D to 2D
-        Triangle projected = translated.multiply(projection);
+        Triangle projected;
+        for (int i = 0; i < 3; i++) {
+          projected.point[i] = projection * translated.point[i];
+          projected.point[i] = reciprocalDivide(projected.point[i]);
+        }
 
         // Scale into view
-        translation = Vector3(1.0f, 1.0f, 0.0f);
-        projected = projected.translate(translation);
+        for (int i = 0; i < 3; i++) {
+          projected.point[i] += Vector3(1.0f, 1.0f, 0.0f);
+        }
 
         projected.point[0].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
         projected.point[0].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
@@ -136,36 +147,6 @@ Matrix Graphics::projectionMatrix() {
   return matrix;
 }
 
-Matrix Graphics::rotationX(float theta) {
-  Matrix rotation;
-  rotation(0, 0) = 1;
-  rotation(1, 1) = cosf(theta);
-  rotation(1, 2) = sinf(theta);
-  rotation(2, 1) = -sinf(theta);
-  rotation(2, 2) = cosf(theta);
-  return rotation;
-}
-
-Matrix Graphics::rotationY(float theta) {
-  Matrix rotation;
-  rotation(0, 0) = cosf(theta);
-  rotation(0, 2) = sinf(theta);
-  rotation(1, 1) = 1.0f;
-  rotation(2, 0) = -sinf(theta);
-  rotation(2, 2) = cosf(theta);
-  return rotation;
-}
-
-Matrix Graphics::rotationZ(float theta) {
-  Matrix rotation;
-  rotation(0, 0) = cosf(theta);
-  rotation(0, 1) = sinf(theta);
-  rotation(1, 0) = -sinf(theta);
-  rotation(1, 1) = cosf(theta);
-  rotation(2, 2) = 1;
-  return rotation;
-}
-
 SDL_Color Graphics::getColor(Vector3& normal) {
   Vector3 light = Vector3(0.0f, 0.0f, -1.0f);
   light = light.normalize();
@@ -187,4 +168,12 @@ SDL_Color Graphics::getColor(Vector3& normal) {
     color = {105, 105, 105, 255};
   }
   return color;
+}
+
+Vector3 Graphics::reciprocalDivide(Vector3& v) {
+  Vector3 u = v;
+  if (u.w != 0.0f) {
+    u /= u.w;
+  }
+  return u;
 }

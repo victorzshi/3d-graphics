@@ -1,5 +1,7 @@
 #include "matrix.h"
 
+#include "vector3/vector3.h"
+
 Matrix::Matrix() {
   for (int i = 0; i < 16; i++) {
     m[i] = 0.0f;
@@ -10,6 +12,36 @@ Matrix::Matrix(float n) {
   for (int i = 0; i < 16; i++) {
     m[i] = n;
   }
+}
+
+Matrix Matrix::rotationX(float theta) {
+  Matrix rotation;
+  rotation(0, 0) = 1.0f;
+  rotation(1, 1) = cosf(theta);
+  rotation(1, 2) = sinf(theta);
+  rotation(2, 1) = -sinf(theta);
+  rotation(2, 2) = cosf(theta);
+  return rotation;
+}
+
+Matrix Matrix::rotationY(float theta) {
+  Matrix rotation;
+  rotation(0, 0) = cosf(theta);
+  rotation(0, 2) = sinf(theta);
+  rotation(1, 1) = 1.0f;
+  rotation(2, 0) = -sinf(theta);
+  rotation(2, 2) = cosf(theta);
+  return rotation;
+}
+
+Matrix Matrix::rotationZ(float theta) {
+  Matrix rotation;
+  rotation(0, 0) = cosf(theta);
+  rotation(0, 1) = sinf(theta);
+  rotation(1, 0) = -sinf(theta);
+  rotation(1, 1) = cosf(theta);
+  rotation(2, 2) = 1.0f;
+  return rotation;
 }
 
 float& Matrix::operator()(int row, int col) { return m[row + 4 * col]; }
@@ -54,4 +86,13 @@ Matrix Matrix::operator*(const Matrix& other) const {
                  this->m[11] * other.m[14] + this->m[15] * other.m[15];
 
   return matrix;
+}
+
+Vector3 Matrix::operator*(const Vector3& v) const {
+  Vector3 u;
+  u.x = m[0] * v.x + m[1] * v.y + m[2] * v.z + m[3] * v.w;
+  u.y = m[4] * v.x + m[5] * v.y + m[6] * v.z + m[7] * v.w;
+  u.z = m[8] * v.x + m[9] * v.y + m[10] * v.z + m[11] * v.w;
+  u.w = m[12] * v.x + m[13] * v.y + m[14] * v.z + m[15] * v.w;
+  return u;
 }
