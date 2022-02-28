@@ -5,17 +5,18 @@
 #include <strstream>
 
 bool Mesh::loadFromObjectFile(std::string file) {
-  std::ifstream ifs("../../data/" + file);
+  std::string path = "../../data/objects/" + file;
+  std::ifstream ifs(path);
   if (!ifs.is_open()) {
-    std::cerr << "Mesh could not load! File: " << file << std::endl;
+    std::cerr << "Mesh could not load! Path: " << path << std::endl;
     return false;
   }
 
   std::vector<Vector3> vertices;
 
   while (!ifs.eof()) {
-    char line[32];
-    ifs.getline(line, 32);
+    char line[64];
+    ifs.getline(line, 64);
 
     std::strstream s;
     s << line;
