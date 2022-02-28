@@ -2,6 +2,7 @@
 
 #include <SDL.h>
 
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
@@ -38,7 +39,8 @@ Graphics::~Graphics() {
 }
 
 void Graphics::run() {
-  Mesh cube = Mesh::cube();
+  Mesh mesh;
+  mesh.loadFromObjectFile("teapot.obj");
 
   Vector3 camera = Vector3();
   Matrix projection = projectionMatrix();
@@ -61,15 +63,15 @@ void Graphics::run() {
 
     Matrix rotation = rotationZ(theta) * rotationX(theta);
 
-    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, SDL_ALPHA_OPAQUE);
-    SDL_RenderClear(renderer_);
+    // Cull triangles
+    std::vector<Triangle> raster;
 
-    for (auto triangle : cube.triangles) {
+    for (auto triangle : mesh.triangles) {
       // Apply rotation
       Triangle rotated = triangle.multiply(rotation);
 
       // Apply translation
-      Vector3 translation = Vector3(0.0f, 0.0f, 20.0f);
+      Vector3 translation = Vector3(0.0f, 0.0f, 50.0f);
       Triangle translated = rotated.translate(translation);
 
       // Calculate normal
@@ -94,26 +96,24 @@ void Graphics::run() {
         projected.point[2].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
 
         // Lighting
-        Vector3 light = Vector3(0.0f, 0.0f, -1.0f);
-        light = light.normalize();
+        projected.color = getColor(normal);
 
-        float dot = normal.dot(light);
-        if (dot > 0.9f) {
-          projected.color = {220, 220, 220, 255};
-        } else if (dot > 0.8f) {
-          projected.color = {211, 211, 211, 255};
-        } else if (dot > 0.7f) {
-          projected.color = {192, 192, 192, 255};
-        } else if (dot > 0.6f) {
-          projected.color = {169, 169, 169, 255};
-        } else if (dot > 0.5f) {
-          projected.color = {128, 128, 128, 255};
-        } else {
-          projected.color = {105, 105, 105, 255};
-        }
-
-        projected.render(renderer_);
+        raster.push_back(projected);
       }
+    }
+
+    // Sort triangles
+    std::sort(raster.begin(), raster.end(), [](Triangle& a, Triangle& b) {
+      float z1 = (a.point[0].z + a.point[1].z + a.point[2].z) / 3.0f;
+      float z2 = (b.point[0].z + b.point[1].z + b.point[2].z) / 3.0f;
+      return z1 > z2;
+    });
+
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, SDL_ALPHA_OPAQUE);
+    SDL_RenderClear(renderer_);
+
+    for (auto triangle : raster) {
+      triangle.render(renderer_);
     }
 
     SDL_RenderPresent(renderer_);
@@ -133,42 +133,58 @@ Matrix Graphics::projectionMatrix() {
   matrix(2, 2) = far / (far - near);
   matrix(2, 3) = -(far * near) / (far - near);
   matrix(3, 2) = 1.0f;
-
   return matrix;
 }
 
 Matrix Graphics::rotationX(float theta) {
   Matrix rotation;
-
   rotation(0, 0) = 1;
   rotation(1, 1) = cosf(theta);
   rotation(1, 2) = sinf(theta);
   rotation(2, 1) = -sinf(theta);
   rotation(2, 2) = cosf(theta);
-
   return rotation;
 }
 
 Matrix Graphics::rotationY(float theta) {
   Matrix rotation;
-
   rotation(0, 0) = cosf(theta);
   rotation(0, 2) = sinf(theta);
   rotation(1, 1) = 1.0f;
   rotation(2, 0) = -sinf(theta);
   rotation(2, 2) = cosf(theta);
-
   return rotation;
 }
 
 Matrix Graphics::rotationZ(float theta) {
   Matrix rotation;
-
   rotation(0, 0) = cosf(theta);
   rotation(0, 1) = sinf(theta);
   rotation(1, 0) = -sinf(theta);
   rotation(1, 1) = cosf(theta);
   rotation(2, 2) = 1;
-
   return rotation;
+}
+
+SDL_Color Graphics::getColor(Vector3& normal) {
+  Vector3 light = Vector3(0.0f, 0.0f, -1.0f);
+  light = light.normalize();
+
+  float dot = normal.dot(light);
+
+  SDL_Color color;
+  if (dot > 0.9f) {
+    color = {220, 220, 220, 255};
+  } else if (dot > 0.8f) {
+    color = {211, 211, 211, 255};
+  } else if (dot > 0.7f) {
+    color = {192, 192, 192, 255};
+  } else if (dot > 0.6f) {
+    color = {169, 169, 169, 255};
+  } else if (dot > 0.5f) {
+    color = {128, 128, 128, 255};
+  } else {
+    color = {105, 105, 105, 255};
+  }
+  return color;
 }
