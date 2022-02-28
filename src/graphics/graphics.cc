@@ -40,19 +40,8 @@ Graphics::~Graphics() {
 void Graphics::run() {
   Mesh cube = Mesh::cube();
 
-  // Set up projection matrix
-  float near = 0.1f;
-  float far = 100.0f;
-  float fov = 90.0f;
-  float d = 1.0f / tanf(fov * 0.5f * 3.14159f / 180.f);  // Distance to plane
-  float a = static_cast<float>(SCREEN_WIDTH) / SCREEN_HEIGHT;  // Aspect ratio
-
-  Matrix projection;
-  projection(0, 0) = d / a;
-  projection(1, 1) = d;
-  projection(2, 2) = far / (far - near);
-  projection(2, 3) = -(far * near) / (far - near);
-  projection(3, 2) = 1.0f;
+  Vector3 camera = Vector3();
+  Matrix projection = projectionMatrix();
 
   SDL_Event event;
   Uint64 previous = SDL_GetTicks64();
@@ -68,53 +57,118 @@ void Graphics::run() {
     Uint64 current = SDL_GetTicks64();
     Uint64 elapsed = current - previous;
 
-    // Build rotation matrix
     float theta = static_cast<float>(elapsed) / 1000.0f;
 
-    Matrix rotationZ;
-    rotationZ(0, 0) = cosf(theta);
-    rotationZ(0, 1) = sinf(theta);
-    rotationZ(1, 0) = -sinf(theta);
-    rotationZ(1, 1) = cosf(theta);
-    rotationZ(2, 2) = 1;
-    rotationZ(3, 3) = 1;
-
-    Matrix rotationX;
-    rotationX(0, 0) = 1;
-    rotationX(1, 1) = cosf(theta * 0.5f);
-    rotationX(1, 2) = sinf(theta * 0.5f);
-    rotationX(2, 1) = -sinf(theta * 0.5f);
-    rotationX(2, 2) = cosf(theta * 0.5f);
-    rotationX(3, 3) = 1;
-
-    Matrix rotation = rotationX * rotationZ;
+    Matrix rotation = rotationZ(theta) * rotationX(theta);
 
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(renderer_);
 
-    SDL_SetRenderDrawColor(renderer_, 255, 255, 255, SDL_ALPHA_OPAQUE);
     for (auto triangle : cube.triangles) {
+      // Apply rotation
       Triangle rotated = triangle.multiply(rotation);
 
+      // Apply translation
       Vector3 translation = Vector3(0.0f, 0.0f, 20.0f);
       Triangle translated = rotated.translate(translation);
 
-      Triangle projected = translated.multiply(projection);
+      // Calculate normal
+      Vector3 a = translated.point[1] - translated.point[0];
+      Vector3 b = translated.point[2] - translated.point[0];
+      Vector3 normal = a.cross(b);
+      normal = normal.normalize();
 
-      // Scale into view
-      translation = Vector3(1.0f, 1.0f, 0.0f);
-      projected = projected.translate(translation);
+      if (normal.dot(translated.point[0] - camera) < 0) {
+        // Project from 3D to 2D
+        Triangle projected = translated.multiply(projection);
 
-      projected.vertex[0].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
-      projected.vertex[0].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
-      projected.vertex[1].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
-      projected.vertex[1].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
-      projected.vertex[2].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
-      projected.vertex[2].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
+        // Scale into view
+        translation = Vector3(1.0f, 1.0f, 0.0f);
+        projected = projected.translate(translation);
 
-      projected.render(renderer_);
+        projected.point[0].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
+        projected.point[0].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
+        projected.point[1].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
+        projected.point[1].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
+        projected.point[2].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
+        projected.point[2].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
+
+        // Lighting
+        Vector3 light = Vector3(0.0f, 0.0f, -1.0f);
+        light = light.normalize();
+
+        float dot = normal.dot(light);
+        if (dot > 0.9f) {
+          projected.color = {220, 220, 220, 255};
+        } else if (dot > 0.8f) {
+          projected.color = {211, 211, 211, 255};
+        } else if (dot > 0.7f) {
+          projected.color = {192, 192, 192, 255};
+        } else if (dot > 0.6f) {
+          projected.color = {169, 169, 169, 255};
+        } else if (dot > 0.5f) {
+          projected.color = {128, 128, 128, 255};
+        } else {
+          projected.color = {105, 105, 105, 255};
+        }
+
+        projected.render(renderer_);
+      }
     }
 
     SDL_RenderPresent(renderer_);
   }
+}
+
+Matrix Graphics::projectionMatrix() {
+  float near = 0.1f;
+  float far = 100.0f;
+  float fov = 90.0f;
+  float d = 1.0f / tanf(fov * 0.5f * 3.141592f / 180.f);  // Distance to plane
+  float a = static_cast<float>(SCREEN_WIDTH) / SCREEN_HEIGHT;  // Aspect ratio
+
+  Matrix matrix;
+  matrix(0, 0) = d / a;
+  matrix(1, 1) = d;
+  matrix(2, 2) = far / (far - near);
+  matrix(2, 3) = -(far * near) / (far - near);
+  matrix(3, 2) = 1.0f;
+
+  return matrix;
+}
+
+Matrix Graphics::rotationX(float theta) {
+  Matrix rotation;
+
+  rotation(0, 0) = 1;
+  rotation(1, 1) = cosf(theta);
+  rotation(1, 2) = sinf(theta);
+  rotation(2, 1) = -sinf(theta);
+  rotation(2, 2) = cosf(theta);
+
+  return rotation;
+}
+
+Matrix Graphics::rotationY(float theta) {
+  Matrix rotation;
+
+  rotation(0, 0) = cosf(theta);
+  rotation(0, 2) = sinf(theta);
+  rotation(1, 1) = 1.0f;
+  rotation(2, 0) = -sinf(theta);
+  rotation(2, 2) = cosf(theta);
+
+  return rotation;
+}
+
+Matrix Graphics::rotationZ(float theta) {
+  Matrix rotation;
+
+  rotation(0, 0) = cosf(theta);
+  rotation(0, 1) = sinf(theta);
+  rotation(1, 0) = -sinf(theta);
+  rotation(1, 1) = cosf(theta);
+  rotation(2, 2) = 1;
+
+  return rotation;
 }

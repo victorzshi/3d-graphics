@@ -30,6 +30,9 @@ target_compile_options(main PRIVATE
   -Wno-c++98-compat
 )
 
+# Define DEBUG macro
+target_compile_definitions(main PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")
+
 # Tests target
 add_executable(tests)
 target_sources(tests PRIVATE 

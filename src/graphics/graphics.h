@@ -21,4 +21,9 @@ class Graphics {
 
   SDL_Window* window_;
   SDL_Renderer* renderer_;
+
+  Matrix projectionMatrix();
+  Matrix rotationX(float theta);
+  Matrix rotationY(float theta);
+  Matrix rotationZ(float theta);
 };

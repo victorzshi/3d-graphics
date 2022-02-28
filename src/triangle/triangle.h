@@ -1,12 +1,14 @@
 #pragma once
 
+#include <SDL.h>
+
 #include "vector3/vector3.h"
 
-struct SDL_Renderer;
 struct Matrix;
 
 struct Triangle {
-  Vector3 vertex[3];
+  Vector3 point[3];
+  SDL_Color color;
 
   Triangle();
 
