@@ -40,25 +40,22 @@ Graphics::~Graphics() {
 void Graphics::run() {
   Mesh cube = Mesh::cube();
 
-  // Projection matrix
+  // Set up projection matrix
   float near = 0.1f;
-  float far = 1000.0f;
+  float far = 100.0f;
   float fov = 90.0f;
-  // Aspect ratio
-  float a = static_cast<float>(SCREEN_WIDTH) / SCREEN_HEIGHT;
-  // Distance to projection plane
-  float d = 1.0f / tanf(fov * 0.5f * 3.14159f / 180.f);
+  float d = 1.0f / tanf(fov * 0.5f * 3.14159f / 180.f);  // Distance to plane
+  float a = static_cast<float>(SCREEN_WIDTH) / SCREEN_HEIGHT;  // Aspect ratio
 
   Matrix projection;
   projection(0, 0) = d / a;
   projection(1, 1) = d;
   projection(2, 2) = far / (far - near);
-  projection(3, 2) = (-far * near) / (far - near);
-  projection(2, 3) = 1.0f;
-
-  Uint64 previous = SDL_GetTicks64();
+  projection(2, 3) = -(far * near) / (far - near);
+  projection(3, 2) = 1.0f;
 
   SDL_Event event;
+  Uint64 previous = SDL_GetTicks64();
 
   while (isRunning_) {
     while (SDL_PollEvent(&event) != 0) {
@@ -97,52 +94,27 @@ void Graphics::run() {
 
     SDL_SetRenderDrawColor(renderer_, 255, 255, 255, SDL_ALPHA_OPAQUE);
     for (auto triangle : cube.triangles) {
-      Triangle rotated;
-      rotated.v[0] = multiply(triangle.v[0], rotation);
-      rotated.v[1] = multiply(triangle.v[1], rotation);
-      rotated.v[2] = multiply(triangle.v[2], rotation);
+      Triangle rotated = triangle.multiply(rotation);
 
-      Triangle translated = rotated;
-      translated.v[0].z += 3.0f;
-      translated.v[1].z += 3.0f;
-      translated.v[2].z += 3.0f;
+      Vector3 translation = Vector3(0.0f, 0.0f, 20.0f);
+      Triangle translated = rotated.translate(translation);
 
-      Triangle projected;
-      projected.v[0] = multiply(translated.v[0], projection);
-      projected.v[1] = multiply(translated.v[1], projection);
-      projected.v[2] = multiply(translated.v[2], projection);
+      Triangle projected = translated.multiply(projection);
 
       // Scale into view
-      projected.v[0] += Vector3(1.0f, 1.0f, 0.0f);
-      projected.v[1] += Vector3(1.0f, 1.0f, 0.0f);
-      projected.v[2] += Vector3(1.0f, 1.0f, 0.0f);
+      translation = Vector3(1.0f, 1.0f, 0.0f);
+      projected = projected.translate(translation);
 
-      projected.v[0].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
-      projected.v[0].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
-      projected.v[1].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
-      projected.v[1].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
-      projected.v[2].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
-      projected.v[2].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
+      projected.vertex[0].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
+      projected.vertex[0].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
+      projected.vertex[1].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
+      projected.vertex[1].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
+      projected.vertex[2].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
+      projected.vertex[2].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
 
       projected.render(renderer_);
     }
 
     SDL_RenderPresent(renderer_);
   }
-}
-
-Vector3 Graphics::multiply(Vector3& v, Matrix& m) {
-  Vector3 u;
-  u.x = v.x * m(0, 0) + v.y * m(1, 0) + v.z * m(2, 0) + m(3, 0);
-  u.y = v.x * m(0, 1) + v.y * m(1, 1) + v.z * m(2, 1) + m(3, 1);
-  u.z = v.x * m(0, 2) + v.y * m(1, 2) + v.z * m(2, 2) + m(3, 2);
-  float w = v.x * m(0, 3) + v.y * m(1, 3) + v.z * m(2, 3) + m(3, 3);
-
-  if (w != 0.0f) {
-    u.x /= w;
-    u.y /= w;
-    u.z /= w;
-  }
-
-  return u;
 }
