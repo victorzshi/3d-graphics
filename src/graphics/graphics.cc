@@ -40,7 +40,7 @@ Graphics::~Graphics() {
 
 void Graphics::run() {
   Mesh mesh;
-  mesh.loadFromObjectFile("teapot.obj");
+  mesh.loadFromObjectFile("bunny.obj");
 
   Vector3 camera = Vector3();
   Matrix projection = projectionMatrix();
@@ -71,7 +71,7 @@ void Graphics::run() {
       Triangle rotated = triangle.multiply(rotation);
 
       // Apply translation
-      Vector3 translation = Vector3(0.0f, 0.0f, 50.0f);
+      Vector3 translation = Vector3(0.0f, 0.0f, 2.0f);
       Triangle translated = rotated.translate(translation);
 
       // Calculate normal
