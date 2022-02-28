@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <vector>
 
 #include "triangle/triangle.h"
@@ -7,6 +8,8 @@
 
 struct Mesh {
   std::vector<Triangle> triangles;
+
+  bool loadFromObjectFile(std::string file);
 
   static Mesh cube();
 };

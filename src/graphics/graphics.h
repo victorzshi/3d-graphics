@@ -1,7 +1,7 @@
 #pragma once
 
-struct SDL_Window;
-struct SDL_Renderer;
+#include <SDL.h>
+
 struct Vector3;
 struct Matrix;
 
@@ -26,4 +26,5 @@ class Graphics {
   Matrix rotationX(float theta);
   Matrix rotationY(float theta);
   Matrix rotationZ(float theta);
+  SDL_Color getColor(Vector3& normal);
 };
