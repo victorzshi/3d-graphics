@@ -40,7 +40,7 @@ Graphics::~Graphics() {
 
 void Graphics::run() {
   Mesh mesh;
-  mesh.loadFromObjectFile("teapot.obj");
+  mesh.loadFromObjectFile("sphere.obj");
 
   Vector3 camera = Vector3();
   Matrix projection = projectionMatrix();
