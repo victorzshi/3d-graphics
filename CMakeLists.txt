@@ -35,6 +35,8 @@ add_executable(tests)
 target_sources(tests PRIVATE 
   "src/vector3/vector3.cc"
   "src/vector3/vector3.test.cc"
+  "src/matrix/matrix.cc"
+  "src/matrix/matrix.test.cc"
 )
 target_link_libraries(tests PRIVATE Catch2::Catch2)
 

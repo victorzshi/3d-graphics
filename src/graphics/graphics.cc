@@ -41,20 +41,20 @@ void Graphics::run() {
   Mesh cube = Mesh::cube();
 
   // Projection matrix
-  float nearPlane = 0.1f;
-  float farPlane = 1000.0f;
-  float fieldOfView = 90.0f;
-  float aspectRatio = static_cast<float>(SCREEN_HEIGHT) / SCREEN_WIDTH;
-  float fieldOfViewRadians =
-      1.0f / tanf(fieldOfView * 0.5f / 180.0f * 3.14159f);
+  float near = 0.1f;
+  float far = 1000.0f;
+  float fov = 90.0f;
+  // Aspect ratio
+  float a = static_cast<float>(SCREEN_WIDTH) / SCREEN_HEIGHT;
+  // Distance to projection plane
+  float d = 1.0f / tanf(fov * 0.5f * 3.14159f / 180.f);
 
   Matrix projection;
-  projection(0, 0) = aspectRatio * fieldOfViewRadians;
-  projection(1, 1) = fieldOfViewRadians;
-  projection(2, 2) = farPlane / (farPlane - nearPlane);
-  projection(3, 2) = (-farPlane * nearPlane) / (farPlane - nearPlane);
+  projection(0, 0) = d / a;
+  projection(1, 1) = d;
+  projection(2, 2) = far / (far - near);
+  projection(3, 2) = (-far * near) / (far - near);
   projection(2, 3) = 1.0f;
-  projection(3, 3) = 0.0f;
 
   Uint64 previous = SDL_GetTicks64();
 
@@ -90,19 +90,17 @@ void Graphics::run() {
     rotationX(2, 2) = cosf(theta * 0.5f);
     rotationX(3, 3) = 1;
 
+    Matrix rotation = rotationX * rotationZ;
+
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(renderer_);
 
     SDL_SetRenderDrawColor(renderer_, 255, 255, 255, SDL_ALPHA_OPAQUE);
     for (auto triangle : cube.triangles) {
       Triangle rotated;
-      rotated.v[0] = multiply(triangle.v[0], rotationZ);
-      rotated.v[1] = multiply(triangle.v[1], rotationZ);
-      rotated.v[2] = multiply(triangle.v[2], rotationZ);
-
-      rotated.v[0] = multiply(rotated.v[0], rotationX);
-      rotated.v[1] = multiply(rotated.v[1], rotationX);
-      rotated.v[2] = multiply(rotated.v[2], rotationX);
+      rotated.v[0] = multiply(triangle.v[0], rotation);
+      rotated.v[1] = multiply(triangle.v[1], rotation);
+      rotated.v[2] = multiply(triangle.v[2], rotation);
 
       Triangle translated = rotated;
       translated.v[0].z += 3.0f;
