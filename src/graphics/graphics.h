@@ -2,9 +2,15 @@
 
 #include <SDL.h>
 
+#include "matrix/matrix.h"
+#include "mesh/mesh.h"
+#include "triangle/triangle.h"
 #include "vector3/vector3.h"
 
-struct Matrix;
+struct Clipped {
+  int total;
+  Triangle triangle[2];
+};
 
 class Graphics {
  public:
@@ -23,9 +29,16 @@ class Graphics {
   SDL_Window* window_;
   SDL_Renderer* renderer_;
 
+  Matrix projection_;
   Vector3 position_;
   Vector3 lookDirection_;
+  Mesh mesh_;
   float yaw;
 
   void handleInput();
+
+  Vector3 intersectPlane(Vector3& planePoint, Vector3 planeNormal,
+                         Vector3& lineStart, Vector3& lineEnd) const;
+  Clipped clipAgainstPlane(Vector3 planePoint, Vector3 planeNormal,
+                           Triangle& triangle) const;
 };
