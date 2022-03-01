@@ -65,7 +65,6 @@ void Graphics::run() {
     Uint64 current = SDL_GetTicks64();
     Uint64 elapsed = current - previous;
     float theta = static_cast<float>(elapsed) / 1000.0f;
-    (void)theta;
 
     // Set up transformations
     Matrix scaling = Matrix::scale(1.0f, 1.0f, 1.0f);
