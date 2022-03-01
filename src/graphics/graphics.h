@@ -2,7 +2,8 @@
 
 #include <SDL.h>
 
-struct Vector3;
+#include "vector3/vector3.h"
+
 struct Matrix;
 
 class Graphics {
@@ -22,9 +23,9 @@ class Graphics {
   SDL_Window* window_;
   SDL_Renderer* renderer_;
 
-  Matrix projectionMatrix();
-  Matrix rotationX(float theta);
-  Matrix rotationY(float theta);
-  Matrix rotationZ(float theta);
-  SDL_Color getColor(Vector3& normal);
+  Vector3 position_;
+  Vector3 lookDirection_;
+  float yaw;
+
+  void handleInput();
 };

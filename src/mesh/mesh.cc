@@ -4,18 +4,18 @@
 #include <iostream>
 #include <strstream>
 
-bool Mesh::loadFromObjectFile(std::string file) {
+Mesh Mesh::loadFromObjectFile(std::string file) {
   std::string path = "../../data/objects/" + file;
 
   std::ifstream ifs(path);
   if (!ifs.is_open()) {
-    std::cerr << "Mesh could not load! Path: " << path << std::endl;
-    return false;
+    std::cerr << "Mesh could not load file! Path: " << path << std::endl;
   }
-
+  
+  Mesh mesh;
   std::vector<Vector3> vertices;
 
-  while (!ifs.eof()) {
+  while (ifs.good()) {
     char line[64];
     ifs.getline(line, 64);
 
@@ -33,9 +33,9 @@ bool Mesh::loadFromObjectFile(std::string file) {
       Vector3 p1 = vertices[f[0] - 1];
       Vector3 p2 = vertices[f[1] - 1];
       Vector3 p3 = vertices[f[2] - 1];
-      triangles.push_back(Triangle(p1, p2, p3));
+      mesh.triangles.push_back(Triangle(p1, p2, p3));
     }
   }
 
-  return true;
+  return mesh;
 }

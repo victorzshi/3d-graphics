@@ -2,10 +2,10 @@
 
 #include <assert.h>
 
-Vector3::Vector3() : x(0.0f), y(0.0f), z(0.0f) {}
+Vector3::Vector3() : x(0.0f), y(0.0f), z(0.0f), w(1.0f) {}
 
 Vector3::Vector3(float newX, float newY, float newZ)
-    : x(newX), y(newY), z(newZ) {}
+    : x(newX), y(newY), z(newZ), w(1.0f) {}
 
 float Vector3::length() const { return sqrtf(x * x + y * y + z * z); }
 

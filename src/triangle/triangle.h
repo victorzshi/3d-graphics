@@ -12,11 +12,9 @@ struct Triangle {
 
   Triangle();
 
-  Triangle(Vector3 v1, Vector3 v2, Vector3 v3);
+  Triangle(Vector3 p1, Vector3 p2, Vector3 p3);
 
-  Triangle multiply(Matrix& m) const;
-
-  Triangle translate(Vector3& v) const;
+  void setColor(float dot);
 
   void render(SDL_Renderer* renderer);
 };

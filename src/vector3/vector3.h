@@ -3,7 +3,8 @@
 #include <string>
 
 struct Vector3 {
-  float x, y, z;
+  // 3D basis, plus extra info
+  float x, y, z, w;
 
   Vector3();
 

@@ -39,11 +39,15 @@ Graphics::~Graphics() {
 }
 
 void Graphics::run() {
-  Mesh mesh;
-  mesh.loadFromObjectFile("sphere.obj");
+  Mesh mesh = Mesh::loadFromObjectFile("sphere.obj");
 
-  Vector3 camera = Vector3();
-  Matrix projection = projectionMatrix();
+  float fov = 90.0f;
+  float pi = static_cast<float>(atan(1)) * 4;
+  float distance = 1.0f / tanf(fov / 2 * pi / 180);
+  float aspect = static_cast<float>(SCREEN_WIDTH) / SCREEN_HEIGHT;
+  float near = 0.1f;
+  float far = 100.0f;
+  Matrix projection = Matrix::projection(distance, aspect, near, far);
 
   SDL_Event event;
   Uint64 previous = SDL_GetTicks64();
@@ -56,47 +60,74 @@ void Graphics::run() {
       }
     }
 
+    handleInput();
+
     Uint64 current = SDL_GetTicks64();
     Uint64 elapsed = current - previous;
-
     float theta = static_cast<float>(elapsed) / 1000.0f;
+    (void)theta;
 
-    Matrix rotation = rotationZ(theta) * rotationX(theta);
+    // Set up transformations
+    Matrix scaling = Matrix::scale(1.0f, 1.0f, 1.0f);
+    Matrix rotation = Matrix::rotateY(theta) * Matrix::rotateX(theta);
+    Matrix translation = Matrix::translate(Vector3(0.0f, 0.0f, 10.0f));
+    Matrix world = Matrix::identity() * scaling * rotation * translation;
+
+    // Set up camera
+    Vector3 up = Vector3(0.0f, 1.0f, 0.0f);
+    Vector3 target = Vector3(0.0f, 0.0f, 1.0f);
+    lookDirection_ = Matrix::rotateY(yaw) * target;
+    target = position_ + lookDirection_;
+    Matrix camera = Matrix::pointAt(position_, target, up);
+    Matrix view = Matrix::quickInverse(camera);
 
     // Cull triangles
     std::vector<Triangle> raster;
 
     for (auto triangle : mesh.triangles) {
-      // Apply rotation
-      Triangle rotated = triangle.multiply(rotation);
-
-      // Apply translation
-      Vector3 translation = Vector3(0.0f, 0.0f, 10.0f);
-      Triangle translated = rotated.translate(translation);
+      Triangle transformed;
+      for (int i = 0; i < 3; i++) {
+        transformed.point[i] = world * triangle.point[i];
+      }
 
       // Calculate normal
-      Vector3 a = translated.point[1] - translated.point[0];
-      Vector3 b = translated.point[2] - translated.point[0];
-      Vector3 normal = a.cross(b);
-      normal = normal.normalize();
+      Vector3 a = transformed.point[1] - transformed.point[0];
+      Vector3 b = transformed.point[2] - transformed.point[0];
+      Vector3 normal = a.cross(b).normalize();
+      Vector3 temp = (transformed.point[0] - position_).normalize();
 
-      if (normal.dot(translated.point[0] - camera) < 0) {
+      if (normal.dot(temp) < 0.0f) {
+        // Convert world space to view space
+        Triangle viewed;
+        for (int i = 0; i < 3; i++) {
+          viewed.point[i] = view * transformed.point[i];
+        }
+
         // Project from 3D to 2D
-        Triangle projected = translated.multiply(projection);
+        Triangle projected;
+        for (int i = 0; i < 3; i++) {
+          projected.point[i] = projection * viewed.point[i];
+        }
 
-        // Scale into view
-        translation = Vector3(1.0f, 1.0f, 0.0f);
-        projected = projected.translate(translation);
+        // Normalize with reciprocal divide
+        for (int i = 0; i < 3; i++) {
+          float w = projected.point[i].w;
+          if (w != 0.0f) {
+            projected.point[i] /= w;
+          }
+        }
 
-        projected.point[0].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
-        projected.point[0].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
-        projected.point[1].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
-        projected.point[1].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
-        projected.point[2].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
-        projected.point[2].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
+        // Offset into normalized space
+        Vector3 offset = Vector3(1.0f, 1.0f, 0.0f);
+        for (int i = 0; i < 3; i++) {
+          projected.point[i] += offset;
+          projected.point[i].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
+          projected.point[i].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
+        }
 
-        // Lighting
-        projected.color = getColor(normal);
+        // Calculate lighting
+        Vector3 light = Vector3(0.0f, 0.0f, -1.0f).normalize();
+        projected.setColor(normal.dot(light));
 
         raster.push_back(projected);
       }
@@ -120,71 +151,39 @@ void Graphics::run() {
   }
 }
 
-Matrix Graphics::projectionMatrix() {
-  float near = 0.1f;
-  float far = 100.0f;
-  float fov = 90.0f;
-  float d = 1.0f / tanf(fov * 0.5f * 3.141592f / 180.f);  // Distance to plane
-  float a = static_cast<float>(SCREEN_WIDTH) / SCREEN_HEIGHT;  // Aspect ratio
-
-  Matrix matrix;
-  matrix(0, 0) = d / a;
-  matrix(1, 1) = d;
-  matrix(2, 2) = far / (far - near);
-  matrix(2, 3) = -(far * near) / (far - near);
-  matrix(3, 2) = 1.0f;
-  return matrix;
-}
-
-Matrix Graphics::rotationX(float theta) {
-  Matrix rotation;
-  rotation(0, 0) = 1;
-  rotation(1, 1) = cosf(theta);
-  rotation(1, 2) = sinf(theta);
-  rotation(2, 1) = -sinf(theta);
-  rotation(2, 2) = cosf(theta);
-  return rotation;
-}
-
-Matrix Graphics::rotationY(float theta) {
-  Matrix rotation;
-  rotation(0, 0) = cosf(theta);
-  rotation(0, 2) = sinf(theta);
-  rotation(1, 1) = 1.0f;
-  rotation(2, 0) = -sinf(theta);
-  rotation(2, 2) = cosf(theta);
-  return rotation;
-}
-
-Matrix Graphics::rotationZ(float theta) {
-  Matrix rotation;
-  rotation(0, 0) = cosf(theta);
-  rotation(0, 1) = sinf(theta);
-  rotation(1, 0) = -sinf(theta);
-  rotation(1, 1) = cosf(theta);
-  rotation(2, 2) = 1;
-  return rotation;
-}
-
-SDL_Color Graphics::getColor(Vector3& normal) {
-  Vector3 light = Vector3(0.0f, 0.0f, -1.0f);
-  light = light.normalize();
-
-  float dot = normal.dot(light);
-
-  SDL_Color color;
-  if (dot > 0.9f) {
-    color = {220, 220, 220, 255};
-  } else if (dot > 0.8f) {
-    color = {211, 211, 211, 255};
-  } else if (dot > 0.7f) {
-    color = {192, 192, 192, 255};
-  } else if (dot > 0.6f) {
-    color = {169, 169, 169, 255};
-  } else if (dot > 0.5f) {
-    color = {128, 128, 128, 255};
-  } else {
-    color = {105, 105, 105, 255};
+void Graphics::handleInput() {
+  const Uint8* currentKeyStates = SDL_GetKeyboardState(nullptr);
+  if (currentKeyStates[SDL_SCANCODE_UP]) {
+    position_.z += 0.1f;
   }
-  return color;
+  if (currentKeyStates[SDL_SCANCODE_DOWN]) {
+    position_.z -= 0.1f;
+  }
+  if (currentKeyStates[SDL_SCANCODE_LEFT]) {
+    position_.x += 0.1f;
+  }
+  if (currentKeyStates[SDL_SCANCODE_RIGHT]) {
+    position_.x -= 0.1f;
+  }
+  if (currentKeyStates[SDL_SCANCODE_SPACE]) {
+    position_.y += 0.1f;
+  }
+  if (currentKeyStates[SDL_SCANCODE_LCTRL]) {
+    position_.y -= 0.1f;
+  }
+
+  Vector3 forward = lookDirection_ * 0.1f;
+
+  if (currentKeyStates[SDL_SCANCODE_W]) {
+    position_ += forward;
+  }
+  if (currentKeyStates[SDL_SCANCODE_S]) {
+    position_ -= forward;
+  }
+  if (currentKeyStates[SDL_SCANCODE_A]) {
+    yaw += 0.01f;
+  }
+  if (currentKeyStates[SDL_SCANCODE_D]) {
+    yaw -= 0.01f;
+  }
 }
