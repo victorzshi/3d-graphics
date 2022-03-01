@@ -9,5 +9,5 @@
 struct Mesh {
   std::vector<Triangle> triangles;
 
-  bool loadFromObjectFile(std::string file);
+  void loadFromObjectFile(std::string file);
 };

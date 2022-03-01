@@ -22,7 +22,5 @@ class Graphics {
   SDL_Window* window_;
   SDL_Renderer* renderer_;
 
-  Matrix projectionMatrix();
   Vector3 reciprocalDivide(Vector3& v);
-  SDL_Color getColor(Vector3& normal);
 };

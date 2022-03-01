@@ -17,6 +17,22 @@ Triangle::Triangle(Vector3 p1, Vector3 p2, Vector3 p3)
   point[2] = p3;
 }
 
+void Triangle::setColor(float dot) {
+  if (dot > 0.9f) {
+    color = {220, 220, 220, 255};
+  } else if (dot > 0.8f) {
+    color = {211, 211, 211, 255};
+  } else if (dot > 0.7f) {
+    color = {192, 192, 192, 255};
+  } else if (dot > 0.6f) {
+    color = {169, 169, 169, 255};
+  } else if (dot > 0.5f) {
+    color = {128, 128, 128, 255};
+  } else {
+    color = {105, 105, 105, 255};
+  }
+}
+
 void Triangle::render(SDL_Renderer* renderer) {
   SDL_Vertex vertex[3];
 
