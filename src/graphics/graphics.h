@@ -2,7 +2,8 @@
 
 #include <SDL.h>
 
-struct Vector3;
+#include "vector3/vector3.h"
+
 struct Matrix;
 
 class Graphics {
@@ -22,5 +23,9 @@ class Graphics {
   SDL_Window* window_;
   SDL_Renderer* renderer_;
 
-  Vector3 reciprocalDivide(Vector3& v);
+  Vector3 position_;
+  Vector3 lookDirection_;
+  float yaw;
+
+  void handleInput();
 };

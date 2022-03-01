@@ -100,3 +100,55 @@ Matrix Matrix::projection(float distance, float aspect, float near, float far) {
   matrix(3, 2) = 1.0f;
   return matrix;
 }
+
+Matrix Matrix::pointAt(Vector3& position, Vector3& target, Vector3& up) {
+  Vector3 newForward = (target - position).normalize();
+
+  Vector3 a = newForward * (up.dot(newForward));
+  Vector3 newUp = (up - a).normalize();
+
+  Vector3 newRight = newUp.cross(newForward);
+
+  Matrix matrix;
+  matrix(0, 0) = newRight.x;
+  matrix(0, 1) = newRight.y;
+  matrix(0, 2) = newRight.z;
+  matrix(0, 3) = 0.0f;
+  matrix(1, 0) = newUp.x;
+  matrix(1, 1) = newUp.y;
+  matrix(1, 2) = newUp.z;
+  matrix(1, 3) = 0.0f;
+  matrix(2, 0) = newForward.x;
+  matrix(2, 1) = newForward.y;
+  matrix(2, 2) = newForward.z;
+  matrix(2, 3) = 0.0f;
+  matrix(3, 0) = position.x;
+  matrix(3, 1) = position.y;
+  matrix(3, 2) = position.z;
+  matrix(3, 3) = 1.0f;
+  return matrix;
+}
+
+Matrix Matrix::quickInverse(Matrix& m) {
+  Matrix matrix;
+  matrix(0, 0) = m(0, 0);
+  matrix(0, 1) = m(1, 0);
+  matrix(0, 2) = m(2, 0);
+  matrix(0, 3) = 0.0f;
+  matrix(1, 0) = m(0, 1);
+  matrix(1, 1) = m(1, 1);
+  matrix(1, 2) = m(2, 1);
+  matrix(1, 3) = 0.0f;
+  matrix(2, 0) = m(0, 2);
+  matrix(2, 1) = m(1, 2);
+  matrix(2, 2) = m(2, 2);
+  matrix(2, 3) = 0.0f;
+  matrix(3, 0) = -(m(3, 0) * matrix(0, 0) + m(3, 1) * matrix(1, 0) +
+                   m(3, 2) * matrix(2, 0));
+  matrix(3, 1) = -(m(3, 0) * matrix(0, 1) + m(3, 1) * matrix(1, 1) +
+                   m(3, 2) * matrix(2, 1));
+  matrix(3, 2) = -(m(3, 0) * matrix(0, 2) + m(3, 1) * matrix(1, 2) +
+                   m(3, 2) * matrix(2, 2));
+  matrix(3, 3) = 1.0f;
+  return matrix;
+}

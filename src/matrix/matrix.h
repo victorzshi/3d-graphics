@@ -23,4 +23,6 @@ struct Matrix {
   static Matrix rotateZ(float theta);
   static Matrix scale(float x, float y, float z);
   static Matrix projection(float distance, float aspect, float near, float far);
+  static Matrix pointAt(Vector3& position, Vector3& target, Vector3& up);
+  static Matrix quickInverse(Matrix& m);
 };

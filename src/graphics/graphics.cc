@@ -39,9 +39,7 @@ Graphics::~Graphics() {
 }
 
 void Graphics::run() {
-  Mesh mesh = Mesh::loadFromObjectFile("teapot.obj");
-
-  Vector3 camera = Vector3();
+  Mesh mesh = Mesh::loadFromObjectFile("sphere.obj");
 
   float fov = 90.0f;
   float pi = static_cast<float>(atan(1)) * 4;
@@ -62,18 +60,26 @@ void Graphics::run() {
       }
     }
 
+    handleInput();
+
     Uint64 current = SDL_GetTicks64();
     Uint64 elapsed = current - previous;
     float theta = static_cast<float>(elapsed) / 1000.0f;
     (void)theta;
 
     // Set up transformations
-    Matrix scaling = Matrix::scale(0.25f, 0.25f, 0.25f);
-    //Matrix scaling = Matrix::scale(5.0f, 5.0f, 5.0f);
+    Matrix scaling = Matrix::scale(1.0f, 1.0f, 1.0f);
     Matrix rotation = Matrix::rotateY(theta) * Matrix::rotateX(theta);
-    //Matrix rotation = Matrix::identity();
     Matrix translation = Matrix::translate(Vector3(0.0f, 0.0f, 10.0f));
     Matrix world = Matrix::identity() * scaling * rotation * translation;
+
+    // Set up camera
+    Vector3 up = Vector3(0.0f, 1.0f, 0.0f);
+    Vector3 target = Vector3(0.0f, 0.0f, 1.0f);
+    lookDirection_ = Matrix::rotateY(yaw) * target;
+    target = position_ + lookDirection_;
+    Matrix camera = Matrix::pointAt(position_, target, up);
+    Matrix view = Matrix::quickInverse(camera);
 
     // Cull triangles
     std::vector<Triangle> raster;
@@ -88,12 +94,19 @@ void Graphics::run() {
       Vector3 a = transformed.point[1] - transformed.point[0];
       Vector3 b = transformed.point[2] - transformed.point[0];
       Vector3 normal = a.cross(b).normalize();
+      Vector3 temp = (transformed.point[0] - position_).normalize();
 
-      if (normal.dot(transformed.point[0] - camera) < 0.0f) {
+      if (normal.dot(temp) < 0.0f) {
+        // Convert world space to view space
+        Triangle viewed;
+        for (int i = 0; i < 3; i++) {
+          viewed.point[i] = view * transformed.point[i];
+        }
+
         // Project from 3D to 2D
         Triangle projected;
         for (int i = 0; i < 3; i++) {
-          projected.point[i] = projection * transformed.point[i];
+          projected.point[i] = projection * viewed.point[i];
         }
 
         // Normalize with reciprocal divide
@@ -135,5 +148,42 @@ void Graphics::run() {
     }
 
     SDL_RenderPresent(renderer_);
+  }
+}
+
+void Graphics::handleInput() {
+  const Uint8* currentKeyStates = SDL_GetKeyboardState(nullptr);
+  if (currentKeyStates[SDL_SCANCODE_UP]) {
+    position_.z += 0.1f;
+  }
+  if (currentKeyStates[SDL_SCANCODE_DOWN]) {
+    position_.z -= 0.1f;
+  }
+  if (currentKeyStates[SDL_SCANCODE_LEFT]) {
+    position_.x += 0.1f;
+  }
+  if (currentKeyStates[SDL_SCANCODE_RIGHT]) {
+    position_.x -= 0.1f;
+  }
+  if (currentKeyStates[SDL_SCANCODE_SPACE]) {
+    position_.y += 0.1f;
+  }
+  if (currentKeyStates[SDL_SCANCODE_LCTRL]) {
+    position_.y -= 0.1f;
+  }
+
+  Vector3 forward = lookDirection_ * 0.1f;
+
+  if (currentKeyStates[SDL_SCANCODE_W]) {
+    position_ += forward;
+  }
+  if (currentKeyStates[SDL_SCANCODE_S]) {
+    position_ -= forward;
+  }
+  if (currentKeyStates[SDL_SCANCODE_A]) {
+    yaw += 0.01f;
+  }
+  if (currentKeyStates[SDL_SCANCODE_D]) {
+    yaw -= 0.01f;
   }
 }
