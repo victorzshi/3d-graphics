@@ -64,15 +64,15 @@ void Graphics::run() {
 
     Uint64 current = SDL_GetTicks64();
     Uint64 elapsed = current - previous;
+    float theta = static_cast<float>(elapsed) / 1000.0f;
+    (void)theta;
 
     // Set up transformations
     Matrix scaling = Matrix::scale(0.25f, 0.25f, 0.25f);
-
-    float theta = static_cast<float>(elapsed) / 1000.0f;
+    //Matrix scaling = Matrix::scale(5.0f, 5.0f, 5.0f);
     Matrix rotation = Matrix::rotateY(theta) * Matrix::rotateX(theta);
-
+    //Matrix rotation = Matrix::identity();
     Matrix translation = Matrix::translate(Vector3(0.0f, 0.0f, 10.0f));
-
     Matrix world = Matrix::identity() * scaling * rotation * translation;
 
     // Cull triangles
@@ -87,34 +87,34 @@ void Graphics::run() {
       // Calculate normal
       Vector3 a = transformed.point[1] - transformed.point[0];
       Vector3 b = transformed.point[2] - transformed.point[0];
-      Vector3 normal = a.cross(b);
-      normal = normal.normalize();
+      Vector3 normal = a.cross(b).normalize();
 
-      if (normal.dot(transformed.point[0] - camera) < 0) {
+      if (normal.dot(transformed.point[0] - camera) < 0.0f) {
         // Project from 3D to 2D
         Triangle projected;
         for (int i = 0; i < 3; i++) {
           projected.point[i] = projection * transformed.point[i];
         }
 
-        // Scale into view
+        // Normalize with reciprocal divide
         for (int i = 0; i < 3; i++) {
-          projected.point[i] += Vector3(1.0f, 1.0f, 0.0f);
+          float w = projected.point[i].w;
+          if (w != 0.0f) {
+            projected.point[i] /= w;
+          }
         }
 
-        projected.point[0].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
-        projected.point[0].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
-        projected.point[1].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
-        projected.point[1].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
-        projected.point[2].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
-        projected.point[2].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
+        // Offset into normalized space
+        Vector3 offset = Vector3(1.0f, 1.0f, 0.0f);
+        for (int i = 0; i < 3; i++) {
+          projected.point[i] += offset;
+          projected.point[i].x *= 0.5f * static_cast<float>(SCREEN_WIDTH);
+          projected.point[i].y *= 0.5f * static_cast<float>(SCREEN_HEIGHT);
+        }
 
-        // Lighting
-        Vector3 light = Vector3(0.0f, 0.0f, -1.0f);
-        light = light.normalize();
-
-        float dot = normal.dot(light);
-        projected.setColor(dot);
+        // Calculate lighting
+        Vector3 light = Vector3(0.0f, 0.0f, -1.0f).normalize();
+        projected.setColor(normal.dot(light));
 
         raster.push_back(projected);
       }
