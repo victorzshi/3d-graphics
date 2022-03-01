@@ -39,8 +39,7 @@ Graphics::~Graphics() {
 }
 
 void Graphics::run() {
-  Mesh mesh;
-  mesh.loadFromObjectFile("teapot.obj");
+  Mesh mesh = Mesh::loadFromObjectFile("teapot.obj");
 
   Vector3 camera = Vector3();
 
