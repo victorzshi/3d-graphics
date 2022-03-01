@@ -57,8 +57,7 @@ Matrix Matrix::translate(Vector3 v) {
 }
 
 Matrix Matrix::rotateX(float theta) {
-  Matrix matrix;
-  matrix(0, 0) = 1.0f;
+  Matrix matrix = Matrix::identity();
   matrix(1, 1) = cosf(theta);
   matrix(1, 2) = sinf(theta);
   matrix(2, 1) = -sinf(theta);
@@ -67,31 +66,28 @@ Matrix Matrix::rotateX(float theta) {
 }
 
 Matrix Matrix::rotateY(float theta) {
-  Matrix matrix;
+  Matrix matrix = Matrix::identity();
   matrix(0, 0) = cosf(theta);
   matrix(0, 2) = -sinf(theta);
-  matrix(1, 1) = 1.0f;
   matrix(2, 0) = sinf(theta);
   matrix(2, 2) = cosf(theta);
   return matrix;
 }
 
 Matrix Matrix::rotateZ(float theta) {
-  Matrix matrix;
+  Matrix matrix = Matrix::identity();
   matrix(0, 0) = cosf(theta);
   matrix(0, 1) = sinf(theta);
   matrix(1, 0) = -sinf(theta);
   matrix(1, 1) = cosf(theta);
-  matrix(2, 2) = 1.0f;
   return matrix;
 }
 
 Matrix Matrix::scale(float x, float y, float z) {
-  Matrix matrix;
+  Matrix matrix = Matrix::identity();
   matrix(0, 0) = x;
   matrix(1, 1) = y;
   matrix(2, 2) = z;
-  matrix(3, 3) = 1.0f;
   return matrix;
 }
 

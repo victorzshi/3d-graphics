@@ -79,6 +79,7 @@ TEST_CASE("Matrix rotate X") {
   REQUIRE(m(1, 2) == sinf(pi));
   REQUIRE(m(2, 1) == -sinf(pi));
   REQUIRE(m(2, 2) == cosf(pi));
+  REQUIRE(m(3, 3) == 1.0f);
 }
 
 TEST_CASE("Matrix rotate Y") {
@@ -89,6 +90,7 @@ TEST_CASE("Matrix rotate Y") {
   REQUIRE(m(1, 1) == 1.0f);
   REQUIRE(m(2, 0) == sinf(pi));
   REQUIRE(m(2, 2) == cosf(pi));
+  REQUIRE(m(3, 3) == 1.0f);
 }
 
 TEST_CASE("Matrix rotate Z") {
@@ -99,6 +101,7 @@ TEST_CASE("Matrix rotate Z") {
   REQUIRE(m(1, 0) == -sinf(pi));
   REQUIRE(m(1, 1) == cosf(pi));
   REQUIRE(m(2, 2) == 1.0f);
+  REQUIRE(m(3, 3) == 1.0f);
 }
 
 TEST_CASE("Matrix scale") {

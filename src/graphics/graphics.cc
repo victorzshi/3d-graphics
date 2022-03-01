@@ -72,10 +72,9 @@ void Graphics::run() {
     float theta = static_cast<float>(elapsed) / 1000.0f;
     Matrix rotation = Matrix::rotateY(theta) * Matrix::rotateX(theta);
 
-    // TODO(Victor): Translation not working?
-    // Matrix translation = Matrix::translate(Vector3(0.0f, 0.0f, 10.0f));
+    Matrix translation = Matrix::translate(Vector3(0.0f, 0.0f, 10.0f));
 
-    Matrix transformation = scaling * rotation;
+    Matrix world = Matrix::identity() * scaling * rotation * translation;
 
     // Cull triangles
     std::vector<Triangle> raster;
@@ -83,13 +82,7 @@ void Graphics::run() {
     for (auto triangle : mesh.triangles) {
       Triangle transformed;
       for (int i = 0; i < 3; i++) {
-        transformed.point[i] = transformation * triangle.point[i];
-      }
-
-      // Hack to apply translation
-      for (int i = 0; i < 3; i++) {
-        transformed.point[i] =
-            transformed.point[i] + Vector3(0.0f, 0.0f, 10.0f);
+        transformed.point[i] = world * triangle.point[i];
       }
 
       // Calculate normal
