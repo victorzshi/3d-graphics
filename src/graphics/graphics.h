@@ -21,7 +21,7 @@ class Graphics {
 
  private:
   static const int SCREEN_WIDTH = 640;
-  static const int SCREEN_HEIGHT = 480;
+  static const int SCREEN_HEIGHT = 360;
   static const int RUN_DURATION = 1000;
 
   bool isRunning_;
