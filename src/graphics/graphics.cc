@@ -62,10 +62,14 @@ void Graphics::run() {
     Uint64 current = SDL_GetTicks64();
     Uint64 elapsed = current - previous;
     float theta = static_cast<float>(elapsed) / 1000.0f;
+    (void)theta;
 
     // Set up transformations
-    Matrix scaling = Matrix::scale(0.2f, 0.2f, 0.2f);
-    Matrix rotation = Matrix::rotateY(theta) * Matrix::rotateZ(theta);
+    Matrix scaling = Matrix::scale(0.2f, 0.2f, 0.2f);  // Teapot
+    // Matrix scaling = Matrix::scale(0.5f, 0.5f, 0.5f);  // Cube
+    // Matrix scaling = Matrix::scale(1.0f, 1.0f, 1.0f);  // Sphere
+    // Matrix scaling = Matrix::scale(5.0f, 5.0f, 5.0f);  // Bunny
+    Matrix rotation = Matrix::rotateY(theta) * Matrix::rotateX(theta);
     Matrix translation = Matrix::translate(Vector3(0.0f, 0.0f, 10.0f));
     Matrix world = Matrix::identity() * scaling * rotation * translation;
 
@@ -91,9 +95,8 @@ void Graphics::run() {
       Vector3 a = transformed.point[1] - transformed.point[0];
       Vector3 b = transformed.point[2] - transformed.point[0];
       Vector3 normal = a.cross(b).normalize();
-      Vector3 temp = (transformed.point[0] - position_).normalize();
 
-      if (normal.dot(temp) < 0.0f) {
+      if (normal.dot((transformed.point[0] - position_).normalize()) < 0.0f) {
         Triangle viewed;
 
         // Calculate lighting
@@ -235,10 +238,10 @@ void Graphics::handleInput() {
     position_ -= forward;
   }
   if (currentKeyStates[SDL_SCANCODE_A]) {
-    yaw += 0.01f;
+    yaw += 0.005f;
   }
   if (currentKeyStates[SDL_SCANCODE_D]) {
-    yaw -= 0.01f;
+    yaw -= 0.005f;
   }
 }
 
