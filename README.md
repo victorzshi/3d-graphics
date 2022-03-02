@@ -17,4 +17,8 @@ Learning how to render simple 3D graphics using C++ and SDL2.
 
 ## Attribution
 
-- Code-It-Yourself! 3D Graphics Engine by Javidx9 [(License)](https://github.com/OneLoneCoder/videos/blob/master/LICENSE).
+- Some code snippets taken from Code-It-Yourself! 3D Graphics Engine by Javidx9 [(License)](https://github.com/OneLoneCoder/videos/blob/master/LICENSE).
+
+## License
+
+[GNU GPLv3](https://github.com/victorzshi/graphics-study/blob/main/LICENSE)
