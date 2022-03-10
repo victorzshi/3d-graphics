@@ -1,6 +1,6 @@
 # Graphics Study
 
-Learning how to render simple 3D graphics using C++ and SDL2.
+Learning how to render simple 3D graphics using C++ and SDL.
 
 ![Bunny](data/images/bunny.gif)
 ![Teapot](data/images/teapot.gif)
